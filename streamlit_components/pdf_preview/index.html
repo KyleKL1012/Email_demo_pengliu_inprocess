@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<!-- pdf显示 -->
+<!-- 组件宽度 -->
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>wa-chat</title>
+  <script src="./streamlit-component-lib.js"></script>
+  <script src="./node_modules/pdfjs-dist/build/pdf.js"></script>
+  <script src="./node_modules/pdfjs-dist/web/pdf_viewer.js"></script>
+
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./node_modules/pdfjs-dist/web/pdf_viewer.css">
+
+
+</head>
+
+<body>
+  <div id="root">
+    <div style="height:50px;line-height: 50px;">
+      <button id="prev" style="width:70px;text-align: center;">Previous</button>
+      <button id="next"  style="width:70px;text-align: center;">Next</button>
+      &nbsp; &nbsp;
+      <span>Page: <span id="page_num"></span> / <span id="page_count"></span></span>
+    </div>
+    <div>
+      <canvas id="pdf-canvas" style="border: 1px solid black; direction: ltr;"></canvas>
+    </div>
+
+  </div>
+</body>
+<script id="script" src="./main.js"></script>
+
+</html>

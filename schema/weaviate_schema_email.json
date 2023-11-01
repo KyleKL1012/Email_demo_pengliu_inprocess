@@ -1,0 +1,31 @@
+{
+    "class": "document",
+    "description": "",
+    "properties": [
+        {
+            "name": "chunk_id",
+            "description": "Chunk order",
+            "dataType": ["int"]
+        },
+        {
+            "name": "email_id",
+            "description": "Email id",
+            "dataType": ["text"]
+        },
+        {
+            "name": "title",
+            "description": "Document title or file name",
+            "dataType": ["text"]
+        },
+        {
+            "name": "content",
+            "description": "Chunk content",
+            "dataType": ["text"]
+        },
+        {
+            "name": "metadata",
+            "description": "Any other data to store",
+            "dataType": ["text"]
+        }
+    ]
+}

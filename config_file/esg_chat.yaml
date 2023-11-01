@@ -1,0 +1,82 @@
+settings:
+    iam_url: https://iam.cloud.ibm.com/identity/token
+    default_model_platform: BAM 
+database:
+    weaviate:
+        url: https://contractdemo-naxwjbbo.weaviate.network
+        email_schema_file: schema/weaviate_schema_email.json
+        contract_schema_file: schema/weaviate_schema_contract.json
+        custom_class_name: CustomCollection
+        knowledgebase_class_name: GHGProtocol
+        key: tsLs8ZTRodHsN5IrBD5X1agon7GXz9ZIbFLZ
+chunking:
+    chunk_size: 300
+    chunk_overlap: 0
+    separators: ["\n\n", "\n", " ", ""]
+    encoder: cl100k_base
+
+embedding:
+    model_id: sentence-transformers/all-MiniLM-L6-v2
+
+data:
+    source_file_dir: data/file/
+    target_file_dir: data/parsed_file
+
+model:
+    watsonx:
+        url: https://us-south.ml.cloud.ibm.com/ml/v1-beta/generation/text?version=2023-05-29
+        qa:
+            param:
+                model_id: google/flan-ul2
+                decoding_method: sample  
+                max_new_tokens: 500
+                min_new_tokens: 80  
+                temperature: 0.8  
+                top_k: 50  
+                top_p: 0.95  
+                repetition_penalty: 1.5
+    bam:
+        url: https://bam-api.res.ibm.com/v1/generate
+        qa: 
+            param:
+                model_id: google/flan-ul2
+                decoding_method: sample
+                max_new_tokens: 500
+                min_new_tokens: 80  
+                temperature: 0.8  
+                top_k: 50  
+                top_p: 0.95  
+                repetition_penalty: 1.5
+        qa_pdf: 
+            param:
+                model_id: meta-llama/llama-2-13b
+                decoding_method: sample
+                max_new_tokens: 500
+                min_new_tokens: 80  
+                temperature: 0.8  
+                top_k: 50  
+                top_p: 0.95  
+                repetition_penalty: 1.5
+        compare: 
+            param:
+                model_id: google/flan-ul2
+                decoding_method: sample
+                max_new_tokens: 50
+                min_new_tokens: 10  
+                temperature: 0.3
+                top_k: 50  
+                top_p: 0.95  
+                repetition_penalty: 1.5
+        summarization:
+            param:
+                model_id: google/flan-ul2
+                decoding_method: sample  
+                max_new_tokens: 600
+                min_new_tokens: 200  
+                random_seed: 42
+                stop_sequences: [] 
+                temperature: 0.75  
+                top_k: 50  
+                top_p: 0.95  
+                repetition_penalty: 1
+    
