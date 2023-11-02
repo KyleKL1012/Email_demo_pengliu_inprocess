@@ -56,41 +56,8 @@ def get_context(query_result: json, class_name: str) -> str:
         return ""
 
 
-def generate_metric_tb(model_platform: str, context: str, question: str, task: str) -> dict:
-    """Generate metric table.
 
-    Args:
-        model_platform (str): BAM or WATSONX.
-        context (str): the related text.
-        question (str): the question.
-
-    Returns:
-        result (dict): the model response.
-    """
-    model_input = f'''
-    Answer the question and provide your reasoning.
-
-    The following key information was extracted from the email from customers. Does this align with the assessment of "{question}"?
-    Please answer with 'Aligned' or 'Not aligned'.
-    Information:
-    {context}
-
-    Response:
-    '''
-    result = {}
-    if model_platform == "BAM" and task == "compare":
-        bam_instance = Bam()
-        result = bam_instance.call_bam(input_str=model_input, task="compare")
-
-    elif model_platform == "WATSONX":
-        watsonx_instance = Watsonx()
-        result = watsonx_instance.call_watsonx(input_str=model_input, task="qa")
-    logger.info(f"{model_platform} QA result: {str(result)}")
-
-    return result
-
-
-def question_answer(model_platform: str, context: str, question: str, task: str) -> dict:
+def question_answer(model_platform: str, contract: str, email:str, question: str, task: str) -> dict:
     """Get question answer from LLM.
 
     Args:
@@ -102,18 +69,13 @@ def question_answer(model_platform: str, context: str, question: str, task: str)
         result (dict): the model response.
     """
     if task == 'qa_pdf':
-        prompt = f'''
-                You are a academic assistant AI chatbot here to assist the user based on the academic PDFs they uploaded, and the subsequent Huggingface embeddings. 
-                This academic persona allows you to use as much outside academic responses as you can.
-                But remember this is an app for academix PDF question. Please respond in as academic a way as possible, with an academix audience in mind.
-                Please assist the user to the best of your knowledge, with this academic persona based on the following PDF context, embeddings and the user input. 
-
-                PDF CONTEXT:
-                {context}
-                USER INPUT: 
-                {question}
-                RESPONSE:
-        '''
+        prompt = f"Now you are a consultant that specializes in answering questions regarding a BPO (Business Process Outsourcing) contract. The purpose  is to assist users in understanding the contract terms, obligations, and return information to them which they are interested in.\
+                Please refer to the information in the BPO contract from the following content:{contract} and the information in the email from customers from the following content:{email}.\
+                Please answer my question using the following template:\
+                Questions: Questions here\
+                Answer: Answer of the question here\
+                Questions: {question}\
+                Answer:"
     elif task == 'qa':
         prompt = '''
                 You are a assistant AI chatbot based on your knowledge base. If you don't know just say I don't know.

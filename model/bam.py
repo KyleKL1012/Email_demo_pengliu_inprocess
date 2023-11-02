@@ -28,7 +28,7 @@ class Bam:
 
         """
         try:
-            url = 'https://bam-api.res.ibm.com/v1/'
+            url = 'https://bam-api.res.ibm.com/v1/generate'
         except:
             raise ValueError("url must be provided or set in config file.")
         try:

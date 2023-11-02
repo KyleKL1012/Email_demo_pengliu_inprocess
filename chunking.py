@@ -21,8 +21,8 @@ def doc_chunking(text: str) -> list:
         (list): List of strings (chunks). The index should be the chunk order.
 
     """
-    max_num_of_tokens = '300'
-    chunk_overlap = '20'
+    max_num_of_tokens = '600'
+    chunk_overlap = '200'
     logger.info(f'Splitting text into chunks of {max_num_of_tokens} tokens')
     document = Document(text = text)
 

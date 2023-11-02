@@ -3,12 +3,12 @@ settings:
     default_model_platform: BAM 
 database:
     weaviate:
-        url: https://contractdemo-naxwjbbo.weaviate.network
+        url: https://contract-test-fyb21k5f.weaviate.network
         email_schema_file: schema/weaviate_schema_email.json
         contract_schema_file: schema/weaviate_schema_contract.json
-        custom_class_name: CustomCollection
-        knowledgebase_class_name: GHGProtocol
-        key: tsLs8ZTRodHsN5IrBD5X1agon7GXz9ZIbFLZ
+        contract_class_name: ContractContent
+        email_class_name: EmailCollection
+        key: 5R0kyDE1SNBsyrNwZYHiBSgQY6nmluSPxcsA
 chunking:
     chunk_size: 300
     chunk_overlap: 0

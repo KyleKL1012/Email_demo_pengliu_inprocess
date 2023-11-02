@@ -6,11 +6,13 @@ import base64
 import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
-
+import json
+import weaviate
 from config import config, logger
 from ingesting import ingesting_contract, ingesting_email
 from htmlTemplates import css, bot_template, user_template
 from query import queryemail, querycontract, question_answer
+import requests
 
 
 EMAIL_CLASS_NAME = 'EmailCollection'
@@ -80,56 +82,11 @@ def upload_email(tmp_file_path, class_name):
 
 
 
-def display_convo(prompt):
-    with st.container():
-        # for i, message in enumerate(reversed(st.session_state.chat_history)):
-        #     if i % 2 == 0:
-        #         st.markdown(bot_template.replace("{{MSG}}", message.content), unsafe_allow_html=True)
-        #     else:
-        #         st.markdown(user_template.replace("{{MSG}}", message.content[len(prompt):]), unsafe_allow_html=True)
-        for i, message in enumerate(reversed(st.session_state.chat_history)):
-            message = str(message)
-            if i % 2 == 0:
-                st.markdown(bot_template.replace("{{MSG}}", message), unsafe_allow_html=True)
-            else:
-                st.markdown(user_template.replace("{{MSG}}", message), unsafe_allow_html=True)
-
-
-def handle_userinput(user_question):
-    if st.session_state.get("pdf_processed"):
-        context_email = queryemail(user_question, 'EmailCollection', ["chunk_id", "doc_id", "title", "content", "metadata"])
-        context_contract = querycontract(user_question, 'ContractContent', ["chunk_id", "doc_id", "title", "content", "metadata"])
-
-        context_contract = context_contract['data']['Get']
-        context_email = context_email['data']['Get']
-        context = {**context_contract, **context_email}
-
-        response = question_answer(model_platform="BAM", context=context, question=user_question, task='qa_pdf')
-
-        st.session_state.chat_history.append({"user": user_question, "role": "user"})
-        st.session_state.chat_history.append({"assistant": response, "role": "assistant"})
-
-        print(st.session_state.chat_history)
-        with st.spinner('Generating response...'):
-            display_convo(user_question)
-    else:
-        response = question_answer(model_platform="BAM", context=None, question=user_question, task='qa')
-        st.session_state.chat_history.append({"user": user_question, "role": "user"})
-        st.session_state.chat_history.append({"assistant": response, "role": "assistant"})
-
-        print(st.session_state.chat_history)
-        with st.spinner('Generating response...'):
-            display_convo(user_question)
-
-
-
 
 def main():
     st.set_page_config(page_title="Multi-Document Chat Bot", page_icon=":books:")
     st.write(css, unsafe_allow_html=True)
     init_ses_states()
-    contract_vector = st.session_state.metric_result
-    email_vector = st.session_state.metric_result
     contract_content_path = "./data/Quote Contract.pdf"
     st.title("Contract Advisor 🤖")
     st.subheader("Powered by IBM WatsonX")
@@ -175,20 +132,99 @@ def main():
         pdf_preview(src, 1)
 
     with result_tab:
-        if st.session_state.get("pdf_processed"):
-            st.caption("Here is the result.")
+        api_key = 'pak-AwkYTgLft5uB85xVSeqWdZIHaMfWD-VlWnxWC_WU50g'
+        api_url = 'https://bam-api.res.ibm.com/v1/'
+        question = st.text_input("Is there any request? (eg. Please find out if there is any ambiguity.)")
 
-            st.subheader("Collective Summary:")
+        auth_config = weaviate.AuthApiKey(
+            api_key="5R0kyDE1SNBsyrNwZYHiBSgQY6nmluSPxcsA")
 
-            with st.form("user_input_form"):
-                user_question = st.text_input("Ask a question about the result:")
-                send_button = st.form_submit_button("Send")
-            if send_button and user_question:
-                handle_userinput(user_question)
+        # Instantiate the client with the auth config
+        client = weaviate.Client(
+            url="https://contract-test-fyb21k5f.weaviate.network",
+            auth_client_secret=auth_config
+        )
+
+        query1 = (
+            client.query.get("ContractContent", ["content", "chunk_id"])
+                .with_limit(1)
+        )
+        contract_vector = query1.do()
+
+        query2 = (
+            client.query.get("EmailCollection", ["content", "chunk_id"])
+                .with_limit(2)
+        )
+        email_vector = query2.do()
+
+        contract_content_text = ""
+        for i in contract_vector['data']['Get'][CONTRACT_CLASS_NAME]:
+            contract_content_text += str(i['chunk_id']) + " " + str(i['content']) + "\n"
+        email_content_text = ""
+        for i in email_vector['data']['Get'][EMAIL_CLASS_NAME]:
+            email_content_text += str(i['chunk_id']) + " " + str(i['content']) + "\n"
 
 
-        else:
-            st.caption("Please upload your file on the left sidebar.")
+
+        # Prepare template and generate response
+        prompt_template = f"Now you are a consultant that specializes in answering questions regarding a BPO (Business Process Outsourcing) contract. The purpose  is to assist users in understanding the contract terms, obligations, and return information to them which they are interested in.\
+                    Please refer to the information in the BPO contract from the following content:{contract_content_text} and the information in the email from customers from the following content:{email_content_text}\
+                    Please answer my question using the following template:\
+                    Questions: Questions here\
+                    Answer: Answer of the question here\
+                    Questions: {question}\
+                    Answer:"
+
+
+        if question:
+            template = prompt_template.format(question=question)
+
+            bam_input = {
+                "model_id": "meta-llama/llama-2-7b-chat",
+                "inputs": [template],
+                "parameters": {
+                    "decoding_method": "greedy",
+                    "temperature": 0.1,
+                    "top_p": 0.8,
+                    "top_k": 3,
+                    "repetition_penalty": 1,
+                    "min_new_tokens": 50,
+                    "max_new_tokens": 1500,
+                    "moderations": {
+                        "hap": {
+                            "input": True,
+                            "threshold": 0.7,
+                            "output": True
+                        }
+                    }
+                }
+            }
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {api_key}"
+            }
+
+            url = api_url + 'generate'
+
+            responses = requests.post(
+                url=url,
+                headers=headers,
+                json=bam_input
+            )
+
+            if responses.status_code == 200:
+                response_json = responses.json()
+                if 'results' in response_json and len(response_json['results']) > 0:
+                    generated_text = response_json['results'][0].get('generated_text')
+                    if generated_text:
+                        st.write("This is your answer:", generated_text)
+                    else:
+                        st.write("No generated text found in the response.")
+                else:
+                    st.write("No results found in the response.")
+            else:
+                st.write(f"Request failed with status code: {responses.status_code}")
+                st.write(f"Response content: {responses.content}")
 
 
 if __name__ == "__main__":

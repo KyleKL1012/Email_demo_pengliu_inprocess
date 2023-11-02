@@ -1,27 +1,6 @@
-from email.mime import base
 import yaml
 import os
 import logging
-
-# def get_logger():
-    # # create logger
-    # current_logger = logging.getLogger(__name__)
-    # current_logger.setLevel(logging.INFO)
-    # # remove all previous handler
-    # current_logger.handlers.clear()
-    # # create handler
-    # # fh = logging.FileHandler(log_file_name, encoding='UTF-8')
-    # fh = logging.StreamHandler()
-    # fh.setLevel(logging.INFO)
-    # # create formatter
-    # formatter = logging.Formatter('%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s')
-    # # add formatter to handler
-    # fh.setFormatter(formatter)
-    # # add handler to logger
-    # current_logger.addHandler(fh)
-    # return current_logger
-
-# logger = get_logger()
 
 
 logger = logging.getLogger("streamlit")

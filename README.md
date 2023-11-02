@@ -9,6 +9,6 @@ BAM_KEY=pak-AwkYTgLft5uB85xVSeqWdZIHaMfWD-VlWnxWC_WU50g
 
 Step2. Start the UI
 ```
-streamlit run demo.py
+streamlit run main.py
 ```
 

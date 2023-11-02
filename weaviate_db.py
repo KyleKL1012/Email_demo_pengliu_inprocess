@@ -5,7 +5,7 @@ from weaviate.exceptions import UnexpectedStatusCodeException
 import json
 from embedding import embed_text
 
-from config import config,logger
+from config import logger
 
 
 
@@ -14,10 +14,10 @@ from config import config,logger
 
 class WeaviateEmail:
     def __init__(self):
-        self._url = "https://contractdemo-naxwjbbo.weaviate.network"
+        self._url = "https://contract-test-fyb21k5f.weaviate.network"
         self._base_schema_path = "schema/weaviate_schema_email.json"
         
-        self._key = "tsLs8ZTRodHsN5IrBD5X1agon7GXz9ZIbFLZ"
+        self._key = "5R0kyDE1SNBsyrNwZYHiBSgQY6nmluSPxcsA"
         self._client = self._create_client(self._url, self._key)
         self._base_schema = self._read_base_schema(self._base_schema_path)
 
@@ -213,10 +213,10 @@ class WeaviateEmail:
 
 class WeaviateContract:
     def __init__(self):
-        self._url = "https://contractdemo-naxwjbbo.weaviate.network"
+        self._url = "https://contract-test-fyb21k5f.weaviate.network"
         self._base_schema_path = "schema/weaviate_schema_contract.json"
         
-        self._key = "tsLs8ZTRodHsN5IrBD5X1agon7GXz9ZIbFLZ"
+        self._key = "5R0kyDE1SNBsyrNwZYHiBSgQY6nmluSPxcsA"
         self._client = self._create_client(self._url, self._key)
         self._base_schema = self._read_base_schema(self._base_schema_path)
 
