@@ -170,8 +170,6 @@ def main():
         prompt_template = f"Now you are a consultant that specializes in answering questions regarding a BPO (Business Process Outsourcing) contract. The purpose  is to assist users in understanding the contract terms, obligations, and return information to them which they are interested in.\
                     Please refer to the information in the BPO contract from the following content:{contract_content_text} and the information in the email from customers from the following content:{email_content_text}\
                     Please answer my question using the following template:\
-                    Questions: Questions here\
-                    Answer: Answer of the question here\
                     Questions: {question}\
                     Answer:"
 
