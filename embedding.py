@@ -1,6 +1,4 @@
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
-from langchain.embeddings import OpenAIEmbeddings, SentenceTransformerEmbeddings 
-
 from config import logger
 
 

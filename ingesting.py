@@ -1,6 +1,4 @@
 import json
-import pandas as pd
-import os
 from loading.doc_loading import parse_doc
 from chunking import doc_chunking
 from embedding import embed_text
