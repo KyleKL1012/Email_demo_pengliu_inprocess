@@ -1,17 +1,11 @@
 import os
-import re
 from pathlib import Path
-from typing import Optional
 import base64
 import streamlit as st
 import streamlit.components.v1 as components
-import pandas as pd
-import json
 import weaviate
-from config import config, logger
 from ingesting import ingesting_contract, ingesting_email
-from htmlTemplates import css, bot_template, user_template
-from query import queryemail, querycontract, question_answer
+from htmlTemplates import css
 import requests
 
 
