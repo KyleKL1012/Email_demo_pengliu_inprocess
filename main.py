@@ -128,7 +128,7 @@ def main():
     with result_tab:
         api_key = 'pak-AwkYTgLft5uB85xVSeqWdZIHaMfWD-VlWnxWC_WU50g'
         api_url = 'https://bam-api.res.ibm.com/v1/'
-        question = st.text_input("Is there any request? (eg. Please find out if there is any ambiguity.)")
+        question = st.text_input("Is there any request? (e.g.: Please find out if there is any ambiguity.)")
 
         auth_config = weaviate.AuthApiKey(
             api_key="5R0kyDE1SNBsyrNwZYHiBSgQY6nmluSPxcsA")
