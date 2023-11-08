@@ -3,11 +3,11 @@ from pathlib import Path
 import base64
 import streamlit as st
 import streamlit.components.v1 as components
-import weaviate
 from ingesting import ingesting_contract, ingesting_email
 from htmlTemplates import css
 import requests
-
+from embedding import embed_text
+import weaviate
 
 EMAIL_CLASS_NAME = 'EmailCollection'
 CONTRACT_CLASS_NAME = 'ContractContent'
@@ -129,21 +129,13 @@ def main():
         api_key = 'pak-AwkYTgLft5uB85xVSeqWdZIHaMfWD-VlWnxWC_WU50g'
         api_url = 'https://bam-api.res.ibm.com/v1/'
         question = st.text_input("Is there any request? (e.g.: Please find out if there is any ambiguity.)")
-
         auth_config = weaviate.AuthApiKey(
             api_key="5R0kyDE1SNBsyrNwZYHiBSgQY6nmluSPxcsA")
-
         # Instantiate the client with the auth config
         client = weaviate.Client(
             url="https://contract-test-fyb21k5f.weaviate.network",
             auth_client_secret=auth_config
         )
-
-        query1 = (
-            client.query.get("ContractContent", ["content", "chunk_id"])
-                .with_limit(1)
-        )
-        contract_vector = query1.do()
 
         query2 = (
             client.query.get("EmailCollection", ["content", "chunk_id"])
@@ -151,12 +143,27 @@ def main():
         )
         email_vector = query2.do()
 
-        contract_content_text = ""
-        for i in contract_vector['data']['Get'][CONTRACT_CLASS_NAME]:
-            contract_content_text += str(i['chunk_id']) + " " + str(i['content']) + "\n"
         email_content_text = ""
         for i in email_vector['data']['Get'][EMAIL_CLASS_NAME]:
             email_content_text += str(i['chunk_id']) + " " + str(i['content']) + "\n"
+
+        email_embedding = embed_text(email_content_text)[0]
+        nearvector = {
+            'vector': email_embedding
+        }
+
+        response = (
+            client.query
+                .get(CONTRACT_CLASS_NAME, ['chunk_id', 'content'])
+                .with_near_vector(nearvector)  # 向量检索
+                .with_limit(5)  # 返回个数(TopK)
+                .with_additional(['distance'])
+                .do()
+        )
+
+        contract_content_text = ""
+        for i in response['data']['Get'][CONTRACT_CLASS_NAME]:
+            contract_content_text += str(i['chunk_id']) + " " + str(i['content']) + "\n"
 
 
 
@@ -169,7 +176,7 @@ def main():
 
 
         if question:
-            template = prompt_template.format(question=question)
+            template = prompt_template.format(question=question, contract_content_text=contract_content_text, email_content_text=email_content_text)
 
             bam_input = {
                 "model_id": "meta-llama/llama-2-7b-chat",
